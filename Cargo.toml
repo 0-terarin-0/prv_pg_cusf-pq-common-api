@@ -1,0 +1,24 @@
+[package]
+name = "prv_pg_cusf-pq-common-api"
+version = "0.1.0"
+edition = "2024"
+
+[lib]
+name = "prv_pg_cusf_pq_common_api"
+path = "src/lib.rs"
+
+[[bin]]
+name = "prv_pg_cusf-pq-common-api"
+path = "src/main.rs"
+
+[dependencies]
+axum = "0.8"
+chrono = { version = "0.4", default-features = false, features = ["std", "clock"] }
+env_logger = "0.11"
+log = "0.4"
+reqwest = { version = "0.12", default-features = false, features = ["blocking", "rustls-tls"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+space-balloon-predictor-rs = { git = "https://github.com/PLANET-Qdeveloper/space-balloon-predictor" }
+tokio = { version = "1", features = ["macros", "rt-multi-thread", "net", "signal"] }
+tower-http = { version = "0.6", features = ["cors"] }

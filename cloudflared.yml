@@ -1,0 +1,23 @@
+# Named Cloudflare Tunnel for this predictor API.
+# Quick tunnel (trycloudflare.com) does not use this file — see scripts/tunnel.sh.
+#
+# Persistent hostname (needs a domain on Cloudflare):
+#   cloudflared tunnel login
+#   cloudflared tunnel create cusf-pq-common-api
+#   cloudflared tunnel route dns cusf-pq-common-api predict.example.com
+# Then set `tunnel` and `credentials-file` to the UUID/path printed by create,
+# replace the hostname below, and run:
+#   HOST=127.0.0.1 PORT=8000 cargo run
+#   cloudflared tunnel --config cloudflared.yml run
+
+tunnel: cusf-pq-common-api
+credentials-file: /Users/koki/.cloudflared/REPLACE-WITH-TUNNEL-UUID.json
+
+ingress:
+  - hostname: predict.example.com
+    service: http://127.0.0.1:8000
+    originRequest:
+      connectTimeout: 30s
+      keepAliveTimeout: 5m
+      tcpKeepAlive: 30s
+  - service: http_status:404
