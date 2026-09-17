@@ -2,6 +2,7 @@
 name = "prv_pg_cusf-pq-common-api"
 version = "0.1.0"
 edition = "2024"
+license = "MIT"
 
 [lib]
 name = "prv_pg_cusf_pq_common_api"
