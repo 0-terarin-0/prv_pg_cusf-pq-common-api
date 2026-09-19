@@ -4,17 +4,17 @@ use std::path::PathBuf;
 use std::sync::Arc;
 
 use axum::extract::{Path, Query, State};
-use axum::http::{header, HeaderValue, StatusCode};
+use axum::http::{HeaderValue, StatusCode, header};
 use axum::response::{IntoResponse, Response};
 use axum::routing::get;
 use axum::{Json, Router};
 use chrono::{DateTime, Utc};
 use log::info;
-use prv_pg_cusf_pq_common_api::tawhiri::{
-    format_csv, format_kml, parse_balloon_class, parse_request_with_balloon_class, run_prediction,
-    OutputFormat, ParsedRequest, SuccessResponse,
-};
 use prv_pg_cusf_pq_common_api::ApiError;
+use prv_pg_cusf_pq_common_api::tawhiri::{
+    OutputFormat, ParsedRequest, SuccessResponse, format_csv, format_kml, parse_balloon_class,
+    parse_request_with_balloon_class, run_prediction,
+};
 use tokio::net::TcpListener;
 use tower_http::cors::CorsLayer;
 
@@ -37,14 +37,12 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     };
 
     let app = Router::new()
-        .route("/pqruntime/{balloon_class}", get(pqruntime_handler))
-        .route("/pqruntime/{balloon_class}/", get(pqruntime_handler))
+        .route("{balloon_class}", get(pqruntime_handler))
+        .route("{balloon_class}/", get(pqruntime_handler))
         .layer(CorsLayer::permissive())
         .with_state(state);
 
     info!("Tawhiri-compatible predictor listening on http://{addr}");
-    info!("GET /pqruntime/{{1000|1500|2000|3000}} uses balloon class in the path");
-    info!("GET /tawhiri and GET /api/v1/ default to 2000g");
 
     let listener = TcpListener::bind(addr).await?;
     axum::serve(listener, app).await?;
@@ -108,7 +106,9 @@ async fn predict_with_class_at(
     match result {
         Ok(Ok(response)) => format_response(&parsed, response),
         Ok(Err(err)) => err.into_response(),
-        Err(err) => ApiError::internal(format!("Prediction task failed: {err}"), start).into_response(),
+        Err(err) => {
+            ApiError::internal(format!("Prediction task failed: {err}"), start).into_response()
+        }
     }
 }
 
@@ -120,10 +120,7 @@ fn format_response(parsed: &ParsedRequest, response: SuccessResponse) -> Respons
             Err(err) => err.into_response(),
         },
         OutputFormat::Kml => match format_kml(&response) {
-            Ok(payload) => match attachment(
-                payload,
-                "application/vnd.google-earth.kml+xml",
-            ) {
+            Ok(payload) => match attachment(payload, "application/vnd.google-earth.kml+xml") {
                 Ok(resp) => resp,
                 Err(err) => err.into_response(),
             },
