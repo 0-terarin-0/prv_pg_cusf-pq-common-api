@@ -37,8 +37,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     };
 
     let app = Router::new()
-        .route("{balloon_class}", get(pqruntime_handler))
-        .route("{balloon_class}/", get(pqruntime_handler))
+        .route("/{balloon_class}", get(pqruntime_handler))
+        .route("/{balloon_class}/", get(pqruntime_handler))
         .layer(CorsLayer::permissive())
         .with_state(state);
 
